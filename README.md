@@ -26,7 +26,7 @@ F1 Score ≈ 0.27: Indicates weak performance in identifying non-biodegradable w
 
 Conclusion: The model is much better at identifying biodegradable waste than non-biodegradable, which suggests a class imbalance or insufficient training examples for non-biodegradable items.
 
-2. Confusion Matrix
+Confusion Matrix
 True Biodegradable (664) correctly predicted.
 
 Biodegradable misclassified as Non-biodegradable (230).
