@@ -7,61 +7,65 @@ Original file is located at
     https://colab.research.google.com/drive/1YBtvOD-XEgme9obkV0E8iven08GB3FzN
 """
 
-import streamlit as st
-from PIL import Image
+from google.colab import drive
+drive.mount('/content/drive')
+
+import gradio as gr
 import numpy as np
+from PIL import Image
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 
-# Load model saved in .keras format
-@st.cache_resource
-def load_trained_model():
-    return load_model("waste_classifier.keras")
+# Load model
+model_path = "/content/drive/MyDrive/waste_classifier.keras"
+model = load_model(model_path)
 
-model = load_trained_model()
-
-# Class labels
+# Labels and tips
 class_names = ['Biodegradable', 'Non-Biodegradable']
-
-# Recycling tips
-recycling_tips = {
-    'Biodegradable': "🌱 Tip: Compost food scraps and garden waste. Avoid contaminating with plastics.",
-    'Non-Biodegradable': "♻️ Tip: Recycle plastics, metals, and e-waste at certified centers."
+tips = {
+    'Biodegradable': "🌿 Compost organic waste like food scraps and leaves. Keep plastics out.",
+    'Non-Biodegradable': "🔁 Recycle plastic, glass, and metal. Dispose e-waste at proper centers."
 }
 
-# Preprocess uploaded image
-def preprocess_image(image):
-    image = image.resize((224, 224))  # Match model input size
-    image = img_to_array(image)
-    image = np.expand_dims(image, axis=0)
-    image = image / 255.0
-    return image
+# Prediction function
+def predict(image):
+    image = image.convert("RGB").resize((224, 224))
+    img_array = img_to_array(image) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
 
-# Streamlit UI
-st.title("♻️ Waste Classifier")
-st.markdown("Upload an image to classify it as **Biodegradable** or **Non-Biodegradable**.")
+    preds = model.predict(img_array)[0]
+    label = class_names[np.argmax(preds)]
+    confidence = float(np.max(preds))
+    tip = tips[label]
+    result_text = f"🧾 **Prediction:** {label} \n📊 **Confidence:** {confidence * 100:.2f}%"
+    return result_text, tip
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+# UI with gr.Blocks
+with gr.Blocks(title="♻️ Waste Classifier App") as demo:
+    gr.Markdown("## ♻️ Waste Classifier")
+    gr.Markdown(
+        "Upload an image of waste to classify it as **Biodegradable** or **Non-Biodegradable**.\n\n"
+        "Get instant **recycling tips** to help the environment! 🌍"
+    )
 
-if uploaded_file:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    with gr.Row():
+        with gr.Column(scale=1):
+            image_input = gr.Image(label="📷 Upload Waste Image", type="pil")
+            submit_btn = gr.Button("🔍 Classify Waste")
 
-    if st.button("Classify"):
-        processed = preprocess_image(image)
-        prediction = model.predict(processed)[0]
-        class_idx = np.argmax(prediction)
-        label = class_names[class_idx]
-        confidence = prediction[class_idx] * 100
+        with gr.Column(scale=1):
+            output_label = gr.Markdown(label="Prediction")
+            output_tip = gr.Markdown(label="♻️ Recycling Tip")
 
-        st.success(f"Prediction: **{label}** ({confidence:.2f}%)")
-        st.info(recycling_tips[label])
-import gdown
-import os
-from tensorflow.keras.models import load_model
+    submit_btn.click(fn=predict, inputs=image_input, outputs=[output_label, output_tip])
 
-MODEL_PATH = "waste_classifier.keras"
-if not os.path.exists(MODEL_PATH):
-    gdown.download("https://drive.google.com/uc?id=YOUR_FILE_ID", MODEL_PATH, quiet=False)
+    gr.Examples(
+        examples=[
+            "/content/drive/MyDrive/examples/banana_peel.jpg",
+            "/content/drive/MyDrive/examples/plastic_bottle.jpg"
+        ],
+        inputs=image_input,
+        label="📁 Try Example Images"
+    )
 
-model = load_model(MODEL_PATH)
+demo.launch()
