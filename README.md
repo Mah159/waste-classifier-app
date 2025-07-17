@@ -39,3 +39,6 @@ Future improvements:
 - Augment or balance the dataset with more non-biodegradable examples.
 
 The next step was the create a User Interface in Gradio. Its code has been given in the file app.py. The website link was hence generated in colab. 
+
+
+
