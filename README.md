@@ -38,7 +38,41 @@ Non-biodegradable misclassified as Biodegradable (243).
 Future improvements:
 - Augment or balance the dataset with more non-biodegradable examples.
 
+
+Updated Stats after using custom model:
+
+Training loss steadily decreased from 0.59 to 0.12.
+
+Validation loss also decreased consistently, indicating minimal overfitting.
+
+Accuracy over Epochs
+
+Training accuracy improved from 70% to 97%.
+
+Validation accuracy reached about 91%—a strong indicator of generalization.
+
+780 biodegradable images were correctly classified
+
+217 non_biodegradable were correctly classified
+
+Misclassifications have decreased compared to earlier results
+
+Biodegradable:
+
+Precision: 0.90
+
+Recall: 0.87
+
+F1 Score: 0.88
+
+Non-biodegradable:
+
+Precision: 0.66
+
+Recall: 0.71
+
+F1 Score: 0.68
+
+This shows notable improvement in non-biodegradable classification compared to previous results.
+
 The next step was the create a User Interface in Gradio. Its code has been given in the file app.py. The website link was hence generated in colab. 
-
-
-
